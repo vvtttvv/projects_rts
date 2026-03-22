@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 public class Mediator : IMediator
 {
-    private Dictionary<Type, Delegate> _dict = new Dictionary<Type, Delegate>();
+    private readonly Dictionary<Type, Delegate> _dict = new();
 
     public void Register<TCommand, TParam, TResult>(IHandler<TCommand, TParam, TResult> handler) where TCommand : ICommand<TParam, TResult>
     {
