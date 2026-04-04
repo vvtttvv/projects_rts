@@ -1,0 +1,11 @@
+*.csproj
+*.sln
+bin/
+obj/
+*.user
+*.vs/
+*.log
+*.cache
+*.pdb
+.idea/
+Migrations/

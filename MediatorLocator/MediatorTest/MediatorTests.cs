@@ -5,7 +5,7 @@ using MediatorLocator.Mediation;
 namespace MediatorTest;
 
 
-public class Tests
+public class MediatorTests
 {
     private readonly ICommand<string, int> _command = new GetLengthCommand();
     private readonly IHandler<GetLengthCommand, string, int> _handler = new ConcreteCommandHandler();

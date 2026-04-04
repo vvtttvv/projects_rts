@@ -11,3 +11,4 @@ public class HandlerNotRegisteredException : Exception
     public HandlerNotRegisteredException(string message, Exception innerException)
         : base(message, innerException) { }
 }
+//
