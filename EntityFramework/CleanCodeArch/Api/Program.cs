@@ -1,3 +1,14 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿using Database;
+using Services;
 
-Console.WriteLine("Hello, World!");
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllers();
+builder.Services.AddServicesLayer();
+builder.Services.AddDatabaseLayer();
+
+var app = builder.Build();
+
+app.MapControllers();
+
+app.Run();
