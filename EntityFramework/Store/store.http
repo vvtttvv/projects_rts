@@ -1,0 +1,87 @@
+@Api_HostAddress = http://localhost:5107
+
+### Products - Get all
+GET {{Api_HostAddress}}/api/Product
+Accept: application/json
+
+### Categories - Get all
+GET {{Api_HostAddress}}/api/Category
+Accept: application/json
+
+### Categories - Create valid
+POST {{Api_HostAddress}}/api/Category
+Content-Type: application/json
+
+{
+	"name": "Electronics"
+}
+
+### Categories - Create duplicate (expects 409)
+POST {{Api_HostAddress}}/api/Category
+Content-Type: application/json
+
+{
+	"name": "electronics"
+}
+
+### Categories - Create invalid (expects 400)
+POST {{Api_HostAddress}}/api/Category
+Content-Type: application/json
+
+{
+	"name": "   "
+}
+
+### Orders - Get all
+GET {{Api_HostAddress}}/api/Order
+Accept: application/json
+
+### Products - Create valid (requires existing category id)
+POST {{Api_HostAddress}}/api/Product
+Content-Type: application/json
+
+{
+	"name": "Laptop",
+	"price": 1200.499,
+	"categoryId": 1
+}
+
+### Products - Create with unknown category (expects 404)
+POST {{Api_HostAddress}}/api/Product
+Content-Type: application/json
+
+{
+	"name": "Phone",
+	"price": 500,
+	"categoryId": 999
+}
+
+### Orders - Create valid (requires existing product id)
+POST {{Api_HostAddress}}/api/Order
+Content-Type: application/json
+
+{
+	"productId": 1,
+	"quantity": 2
+}
+
+### Orders - Create with invalid quantity (expects 400)
+POST {{Api_HostAddress}}/api/Order
+Content-Type: application/json
+
+{
+	"productId": 1,
+	"quantity": 0
+}
+
+### Orders - Create with unknown product (expects 404)
+POST {{Api_HostAddress}}/api/Order
+Content-Type: application/json
+
+{
+	"productId": 999,
+	"quantity": 3
+}
+
+### Get all categories
+GET {{Api_HostAddress}}/
