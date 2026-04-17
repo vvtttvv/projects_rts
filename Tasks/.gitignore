@@ -1,0 +1,9 @@
+.vscode/
+.idea/
+
+**/bin/
+**/idea/
+**/obj/
+
+*.csproj
+*.sln
