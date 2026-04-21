@@ -15,7 +15,7 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
 		builder.Property(x => x.Name).IsRequired().HasMaxLength(150);
 		builder.Property(x => x.Price).HasColumnType("numeric(18,2)");
 
-		builder.HasOne<Category>()
+		builder.HasOne(x => x.Category)
 			.WithMany()
 			.HasForeignKey(x => x.CategoryId)
 			.OnDelete(DeleteBehavior.Restrict);

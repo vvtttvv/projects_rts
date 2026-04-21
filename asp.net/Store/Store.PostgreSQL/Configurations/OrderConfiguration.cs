@@ -14,7 +14,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
 		builder.HasKey(x => x.Id);
 		builder.Property(x => x.Quantity).IsRequired();
 
-		builder.HasOne<Product>()
+		builder.HasOne(x => x.Product)
 			.WithMany()
 			.HasForeignKey(x => x.ProductId)
 			.OnDelete(DeleteBehavior.Restrict);

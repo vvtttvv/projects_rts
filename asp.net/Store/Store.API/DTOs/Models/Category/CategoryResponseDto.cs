@@ -1,7 +1,7 @@
-namespace Store.Api.DTOs.Category;
+namespace Store.Api.DTOs.Models.Category;
 
 public class CategoryResponseDto
 {
-	public int Id { get; set; }
+	public Guid Id { get; set; }
 	public string Name { get; set; } = string.Empty;
 }

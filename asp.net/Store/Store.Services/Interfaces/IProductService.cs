@@ -5,8 +5,8 @@ namespace Store.Services.Interfaces;
 public interface IProductService
 {
 	Task<IReadOnlyCollection<Product>> GetAllAsync();
-	Task<Product?> GetByIdAsync(int id);
+	Task<Product?> GetByIdAsync(Guid id);
 	Task<Product> CreateAsync(Product product);
-	Task<Product> UpdateAsync(int id, Product product);
-	Task DeleteAsync(int id);
+	Task<Product> UpdateAsync(Guid id, Product product);
+	Task DeleteAsync(Guid id);
 }

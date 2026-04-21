@@ -4,29 +4,11 @@ using Store.Repositories.Interfaces;
 
 namespace Store.PostgreSQL.Repositories;
 
-public class ProductRepository(AppDbContext dbContext) : IProductRepository
+public class ProductRepository(AppDbContext dbContext) : GenericRepository<Product>(dbContext), IProductRepository
 {
-	public async Task<IReadOnlyCollection<Product>> GetAllAsync() =>
-		await dbContext.Products
-			.AsNoTracking()
-			.OrderBy(x => x.Id)
-			.ToListAsync();
-
-	public async Task<Product?> GetByIdAsync(int id) =>
-		await dbContext.Products
-			.AsNoTracking()
-			.FirstOrDefaultAsync(x => x.Id == id);
-
-	public async Task<Product> AddAsync(Product product)
+	public override async Task<Product?> UpdateAsync(Guid id, Product product, CancellationToken cancellationToken = default)
 	{
-		await dbContext.Products.AddAsync(product);
-		await dbContext.SaveChangesAsync();
-		return product;
-	}
-
-	public async Task<Product?> UpdateAsync(Product product)
-	{
-		var existing = await dbContext.Products.FirstOrDefaultAsync(x => x.Id == product.Id);
+		var existing = await DbContext.Products.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 		if (existing is null)
 		{
 			return null;
@@ -35,20 +17,7 @@ public class ProductRepository(AppDbContext dbContext) : IProductRepository
 		existing.Name = product.Name;
 		existing.Price = product.Price;
 		existing.CategoryId = product.CategoryId;
-		await dbContext.SaveChangesAsync();
+		await DbContext.SaveChangesAsync(cancellationToken);
 		return existing;
-	}
-
-	public async Task<bool> DeleteAsync(int id)
-	{
-		var existing = await dbContext.Products.FirstOrDefaultAsync(x => x.Id == id);
-		if (existing is null)
-		{
-			return false;
-		}
-
-		dbContext.Products.Remove(existing);
-		await dbContext.SaveChangesAsync();
-		return true;
 	}
 }

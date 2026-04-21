@@ -22,3 +22,4 @@ app.UseHttpsRedirection();
 app.MapControllers();
 
 app.Run();
+// blog app users comments posts nested comments, nu poate edita poste diferite async + unit tests

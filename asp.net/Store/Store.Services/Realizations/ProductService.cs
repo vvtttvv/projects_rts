@@ -1,5 +1,6 @@
 using Store.Domain.Entities;
 using Store.Repositories.Interfaces;
+using Store.Services.Exceptions;
 using Store.Services.Interfaces;
 
 namespace Store.Services.Realizations;
@@ -8,7 +9,7 @@ public class ProductService(IProductRepository repository, ICategoryRepository c
 {
 	public Task<IReadOnlyCollection<Product>> GetAllAsync() => repository.GetAllAsync();
 
-	public Task<Product?> GetByIdAsync(int id) => repository.GetByIdAsync(id);
+	public Task<Product?> GetByIdAsync(Guid id) => repository.GetByIdAsync(id);
 
 	public async Task<Product> CreateAsync(Product product)
 	{
@@ -18,12 +19,12 @@ public class ProductService(IProductRepository repository, ICategoryRepository c
 		return await repository.AddAsync(product);
 	}
 
-	public async Task<Product> UpdateAsync(int id, Product product)
+	public async Task<Product> UpdateAsync(Guid id, Product product)
 	{
 		var current = await repository.GetByIdAsync(id);
 		if (current is null)
 		{
-			throw new KeyNotFoundException($"Product with id {id} was not found.");
+			throw new EntityNotFoundException($"Product with id {id} was not found.");
 		}
 
 		await ValidateAsync(product);
@@ -32,23 +33,23 @@ public class ProductService(IProductRepository repository, ICategoryRepository c
 		current.Price = NormalizePrice(product.Price);
 		current.CategoryId = product.CategoryId;
 
-		return await repository.UpdateAsync(current)
-			?? throw new KeyNotFoundException($"Product with id {id} was not found.");
+		return await repository.UpdateAsync(id, current)
+			?? throw new EntityNotFoundException($"Product with id {id} was not found.");
 	}
 
-	public async Task DeleteAsync(int id)
+	public async Task DeleteAsync(Guid id)
 	{
 		try
 		{
 			var deleted = await repository.DeleteAsync(id);
 			if (!deleted)
 			{
-				throw new KeyNotFoundException($"Product with id {id} was not found.");
+				throw new EntityNotFoundException($"Product with id {id} was not found.");
 			}
 		}
-		catch (Exception ex) when (ex is not KeyNotFoundException and not InvalidOperationException)
+		catch (Exception ex) when (ex is not EntityNotFoundException and not ConflictException)
 		{
-			throw new InvalidOperationException("Product cannot be deleted because it is used by orders.");
+			throw new ConflictException("Product cannot be deleted because it is used by orders.");
 		}
 	}
 
@@ -56,23 +57,18 @@ public class ProductService(IProductRepository repository, ICategoryRepository c
 	{
 		if (string.IsNullOrWhiteSpace(product.Name))
 		{
-			throw new ArgumentException("Product name is required.");
+			throw new ValidationException("Product name is required.");
 		}
 
 		if (product.Price <= 0)
 		{
-			throw new ArgumentException("Product price must be greater than zero.");
-		}
-
-		if (product.CategoryId <= 0)
-		{
-			throw new ArgumentException("CategoryId must be greater than zero.");
+			throw new ValidationException("Product price must be greater than zero.");
 		}
 
 		var category = await categoryRepository.GetByIdAsync(product.CategoryId);
 		if (category is null)
 		{
-			throw new KeyNotFoundException($"Category with id {product.CategoryId} was not found.");
+			throw new EntityNotFoundException($"Category with id {product.CategoryId} was not found.");
 		}
 	}
 

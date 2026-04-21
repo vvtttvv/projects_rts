@@ -33,7 +33,7 @@ Content-Type: application/json
 }
 
 ### Categories - Update valid
-PUT {{Api_HostAddress}}/api/Category/1
+PUT {{Api_HostAddress}}/api/Category/2ef2f5b6-8b7e-46a9-8d53-296161fb2e9d
 Content-Type: application/json
 
 {

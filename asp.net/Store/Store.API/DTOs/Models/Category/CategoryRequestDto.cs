@@ -1,4 +1,4 @@
-namespace Store.Api.DTOs.Category;
+namespace Store.Api.DTOs.Models.Category;
 
 public class CategoryRequestDto
 {

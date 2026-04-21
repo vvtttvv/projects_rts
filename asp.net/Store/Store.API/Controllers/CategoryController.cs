@@ -1,6 +1,7 @@
-using Store.Api.DTOs.Category;
-using Store.Api.Mappers;
 using Microsoft.AspNetCore.Mvc;
+using Store.Api.DTOs.Mappers;
+using Store.Api.DTOs.Models.Category;
+using Store.Services.Exceptions;
 using Store.Services.Interfaces;
 
 namespace Store.Api.Controllers;
@@ -16,8 +17,8 @@ public class CategoryController(ICategoryService categoryService) : ControllerBa
 		return Ok(result.Select(x => x.ToResponse()));
 	}
 
-	[HttpGet("{id:int}")]
-	public async Task<ActionResult<CategoryResponseDto>> GetById(int id)
+	[HttpGet("{id:guid}")]
+	public async Task<ActionResult<CategoryResponseDto>> GetById(Guid id)
 	{
 		var result = await categoryService.GetByIdAsync(id);
 		return result is null ? NotFound() : Ok(result.ToResponse());
@@ -31,51 +32,51 @@ public class CategoryController(ICategoryService categoryService) : ControllerBa
 			var created = await categoryService.CreateAsync(request.ToEntity());
 			return CreatedAtAction(nameof(GetById), new { id = created.Id }, created.ToResponse());
 		}
-		catch (ArgumentException ex)
+		catch (ValidationException ex)
 		{
 			return BadRequest(ex.Message);
 		}
-		catch (InvalidOperationException ex)
+		catch (ConflictException ex)
 		{
 			return Conflict(ex.Message);
 		}
 	}
 
-	[HttpPut("{id:int}")]
-	public async Task<ActionResult<CategoryResponseDto>> Update(int id, CategoryRequestDto request)
+	[HttpPut("{id:guid}")]
+	public async Task<ActionResult<CategoryResponseDto>> Update(Guid id, CategoryRequestDto request)
 	{
 		try
 		{
 			var updated = await categoryService.UpdateAsync(id, request.ToEntity());
 			return Ok(updated.ToResponse());
 		}
-		catch (ArgumentException ex)
+		catch (ValidationException ex)
 		{
 			return BadRequest(ex.Message);
 		}
-		catch (KeyNotFoundException ex)
+		catch (EntityNotFoundException ex)
 		{
 			return NotFound(ex.Message);
 		}
-		catch (InvalidOperationException ex)
+		catch (ConflictException ex)
 		{
 			return Conflict(ex.Message);
 		}
 	}
 
-	[HttpDelete("{id:int}")]
-	public async Task<IActionResult> Delete(int id)
+	[HttpDelete("{id:guid}")]
+	public async Task<IActionResult> Delete(Guid id)
 	{
 		try
 		{
 			await categoryService.DeleteAsync(id);
 			return NoContent();
 		}
-		catch (KeyNotFoundException ex)
+		catch (EntityNotFoundException ex)
 		{
 			return NotFound(ex.Message);
 		}
-		catch (InvalidOperationException ex)
+		catch (ConflictException ex)
 		{
 			return Conflict(ex.Message);
 		}

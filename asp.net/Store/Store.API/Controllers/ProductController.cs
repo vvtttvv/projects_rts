@@ -1,6 +1,7 @@
-using Store.Api.DTOs.Product;
-using Store.Api.Mappers;
 using Microsoft.AspNetCore.Mvc;
+using Store.Api.DTOs.Mappers;
+using Store.Api.DTOs.Models.Product;
+using Store.Services.Exceptions;
 using Store.Services.Interfaces;
 
 namespace Store.Api.Controllers;
@@ -16,8 +17,8 @@ public class ProductController(IProductService productService) : ControllerBase
 		return Ok(result.Select(x => x.ToResponse()));
 	}
 
-	[HttpGet("{id:int}")]
-	public async Task<ActionResult<ProductResponseDto>> GetById(int id)
+	[HttpGet("{id:guid}")]
+	public async Task<ActionResult<ProductResponseDto>> GetById(Guid id)
 	{
 		var result = await productService.GetByIdAsync(id);
 		return result is null ? NotFound() : Ok(result.ToResponse());
@@ -31,47 +32,47 @@ public class ProductController(IProductService productService) : ControllerBase
 			var created = await productService.CreateAsync(request.ToEntity());
 			return CreatedAtAction(nameof(GetById), new { id = created.Id }, created.ToResponse());
 		}
-		catch (ArgumentException ex)
+		catch (ValidationException ex)
 		{
 			return BadRequest(ex.Message);
 		}
-		catch (KeyNotFoundException ex)
+		catch (EntityNotFoundException ex)
 		{
 			return NotFound(ex.Message);
 		}
 	}
 
-	[HttpPut("{id:int}")]
-	public async Task<ActionResult<ProductResponseDto>> Update(int id, ProductRequestDto request)
+	[HttpPut("{id:guid}")]
+	public async Task<ActionResult<ProductResponseDto>> Update(Guid id, ProductRequestDto request)
 	{
 		try
 		{
 			var updated = await productService.UpdateAsync(id, request.ToEntity());
 			return Ok(updated.ToResponse());
 		}
-		catch (ArgumentException ex)
+		catch (ValidationException ex)
 		{
 			return BadRequest(ex.Message);
 		}
-		catch (KeyNotFoundException ex)
+		catch (EntityNotFoundException ex)
 		{
 			return NotFound(ex.Message);
 		}
 	}
 
-	[HttpDelete("{id:int}")]
-	public async Task<IActionResult> Delete(int id)
+	[HttpDelete("{id:guid}")]
+	public async Task<IActionResult> Delete(Guid id)
 	{
 		try
 		{
 			await productService.DeleteAsync(id);
 			return NoContent();
 		}
-		catch (KeyNotFoundException ex)
+		catch (EntityNotFoundException ex)
 		{
 			return NotFound(ex.Message);
 		}
-		catch (InvalidOperationException ex)
+		catch (ConflictException ex)
 		{
 			return Conflict(ex.Message);
 		}
