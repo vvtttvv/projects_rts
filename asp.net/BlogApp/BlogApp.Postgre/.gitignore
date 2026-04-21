@@ -1,0 +1,15 @@
+*.csproj
+*.sln
+bin/
+obj/
+*.user
+*.vs/
+*.log
+*.cache
+*.pdb
+.idea/
+Migrations/
+appsettings.json
+*.txt
+.idea/
+*.slnx
