@@ -1,0 +1,105 @@
+using BlogApp.API.Controllers;
+using BlogApp.API.DTO.Models.Comments;
+using BlogApp.API.DTO.Models.Posts;
+using BlogApp.API.DTO.Models.Users;
+using BlogApp.Services.Interfaces;
+using Moq;
+using Microsoft.AspNetCore.Mvc;
+
+namespace BlogApp.Tests.Controllers;
+
+[TestFixture]
+public class UsersControllerTests
+{
+    [Test]
+    public async Task GetById_NotFound_Returns404()
+    {
+        var service = new Mock<IUserService>();
+        service.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((BlogApp.Domain.Entities.User?)null);
+
+        var controller = new UsersController(service.Object);
+
+        var result = await controller.GetById(Guid.NewGuid());
+
+        Assert.That(result.Result, Is.InstanceOf<NotFoundResult>());
+    }
+
+    [Test]
+    public async Task Create_Returns201CreatedAtAction()
+    {
+        var created = TestDataFactory.User();
+
+        var service = new Mock<IUserService>();
+        service.Setup(x => x.CreateAsync(It.IsAny<BlogApp.Domain.Entities.User>())).ReturnsAsync(created);
+
+        var controller = new UsersController(service.Object);
+
+        var result = await controller.Create(new CreateUserRequest("john", 20, "John Doe"));
+
+        Assert.That(result.Result, Is.InstanceOf<CreatedAtActionResult>());
+    }
+}
+
+[TestFixture]
+public class PostsControllerTests
+{
+    [Test]
+    public async Task GetById_NotFound_Returns404()
+    {
+        var service = new Mock<IPostService>();
+        service.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((BlogApp.Domain.Entities.Post?)null);
+
+        var controller = new PostsController(service.Object);
+
+        var result = await controller.GetById(Guid.NewGuid());
+
+        Assert.That(result.Result, Is.InstanceOf<NotFoundResult>());
+    }
+
+    [Test]
+    public async Task Delete_Returns204NoContent()
+    {
+        var service = new Mock<IPostService>();
+        service.Setup(x => x.DeleteAsync(It.IsAny<Guid>())).Returns(Task.CompletedTask);
+
+        var controller = new PostsController(service.Object);
+
+        var result = await controller.Delete(Guid.NewGuid());
+
+        Assert.That(result, Is.InstanceOf<NoContentResult>());
+    }
+}
+
+[TestFixture]
+public class CommentsControllerTests
+{
+    [Test]
+    public async Task GetById_NotFound_Returns404()
+    {
+        var service = new Mock<ICommentService>();
+        service.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((BlogApp.Domain.Entities.Comment?)null);
+
+        var controller = new CommentsController(service.Object);
+
+        var result = await controller.GetById(Guid.NewGuid());
+
+        Assert.That(result.Result, Is.InstanceOf<NotFoundResult>());
+    }
+
+    [Test]
+    public async Task Create_Returns201CreatedAtAction()
+    {
+        var created = TestDataFactory.Comment();
+
+        var service = new Mock<ICommentService>();
+        service.Setup(x => x.CreateAsync(It.IsAny<BlogApp.Domain.Entities.Comment>())).ReturnsAsync(created);
+
+        var controller = new CommentsController(service.Object);
+
+        var request = new CreateCommentRequest("text", created.UserId, created.PostId, null);
+        var result = await controller.Create(request);
+
+        Assert.That(result.Result, Is.InstanceOf<CreatedAtActionResult>());
+    }
+}
+
