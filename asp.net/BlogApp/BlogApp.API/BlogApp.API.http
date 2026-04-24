@@ -1,11 +1,11 @@
-@BlogApp.API_HostAddress = http://localhost:5267
+@BlogAppApiHostAddress = http://localhost:5267
 
 ### USERS: get all
-GET {{BlogApp.API_HostAddress}}/api/users
+GET {{BlogAppApiHostAddress}}/api/users
 Accept: application/json
 
 ### USERS: create
-POST {{BlogApp.API_HostAddress}}/api/users
+POST {{BlogAppApiHostAddress}}/api/users
 Content-Type: application/json
 Accept: application/json
 
@@ -21,11 +21,11 @@ Accept: application/json
 %}
 
 ### USERS: get by id
-GET {{BlogApp.API_HostAddress}}/api/users/{{userId}}
+GET {{BlogAppApiHostAddress}}/api/users/{{userId}}
 Accept: application/json
 
 ### USERS: update
-PUT {{BlogApp.API_HostAddress}}/api/users/{{userId}}
+PUT {{BlogAppApiHostAddress}}/api/users/{{userId}}
 Content-Type: application/json
 Accept: application/json
 
@@ -37,11 +37,11 @@ Accept: application/json
 }
 
 ### POSTS: get all
-GET {{BlogApp.API_HostAddress}}/api/posts
+GET {{BlogAppApiHostAddress}}/api/posts
 Accept: application/json
 
 ### POSTS: create
-POST {{BlogApp.API_HostAddress}}/api/posts
+POST {{BlogAppApiHostAddress}}/api/posts
 Content-Type: application/json
 Accept: application/json
 
@@ -56,11 +56,11 @@ Accept: application/json
 %}
 
 ### POSTS: get by id
-GET {{BlogApp.API_HostAddress}}/api/posts/{{postId}}
+GET {{BlogAppApiHostAddress}}/api/posts/{{postId}}
 Accept: application/json
 
 ### POSTS: update
-PUT {{BlogApp.API_HostAddress}}/api/posts/{{postId}}
+PUT {{BlogAppApiHostAddress}}/api/posts/{{postId}}
 Content-Type: application/json
 Accept: application/json
 
@@ -71,11 +71,11 @@ Accept: application/json
 }
 
 ### COMMENTS: get all
-GET {{BlogApp.API_HostAddress}}/api/comments
+GET {{BlogAppApiHostAddress}}/api/comments
 Accept: application/json
 
 ### COMMENTS: create
-POST {{BlogApp.API_HostAddress}}/api/comments
+POST {{BlogAppApiHostAddress}}/api/comments
 Content-Type: application/json
 Accept: application/json
 
@@ -91,11 +91,11 @@ Accept: application/json
 %}
 
 ### COMMENTS: get by id
-GET {{BlogApp.API_HostAddress}}/api/comments/{{commentId}}
+GET {{BlogAppApiHostAddress}}/api/comments/{{commentId}}
 Accept: application/json
 
 ### COMMENTS: update
-PUT {{BlogApp.API_HostAddress}}/api/comments/{{commentId}}
+PUT {{BlogAppApiHostAddress}}/api/comments/{{commentId}}
 Content-Type: application/json
 Accept: application/json
 
@@ -107,10 +107,22 @@ Accept: application/json
 }
 
 ### COMMENTS: delete
-DELETE {{BlogApp.API_HostAddress}}/api/comments/{{commentId}}
+DELETE {{BlogAppApiHostAddress}}/api/comments/{{commentId}}
 
 ### POSTS: delete
-DELETE {{BlogApp.API_HostAddress}}/api/posts/{{postId}}
+DELETE {{BlogAppApiHostAddress}}/api/posts/{{postId}}
 
 ### USERS: delete
-DELETE {{BlogApp.API_HostAddress}}/api/users/{{userId}}
+DELETE {{BlogAppApiHostAddress}}/api/users/{{userId}}
+
+### USERS: update with docker
+PUT http://localhost:8080/api/users/4d524e30-9996-4dae-8c40-cf5c793e8fe8
+Content-Type: application/json
+Accept: application/json
+
+{
+  "userName": "api_tester_updated",
+  "age": 26,
+  "fullName": "API Tester Updated",
+  "role": 2
+}

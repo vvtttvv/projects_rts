@@ -12,5 +12,5 @@ Migrations/
 appsettings.json
 appsettings.Development.json
 *.txt
-.idea/
 *.slnx
+.env
