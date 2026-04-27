@@ -18,8 +18,8 @@ public class PostServiceTests
 
         var repository = new Mock<IPostRepository>();
         repository
-            .Setup(x => x.GetAllAsync(0, 0, It.IsAny<List<System.Linq.Expressions.Expression<Func<Post, object>>>>(), true))
-            .ReturnsAsync(Array.Empty<Post>());
+            .Setup(x => x.ExistsByUserAndTitleAsync(userId, "Hello", null))
+            .ReturnsAsync(false);
         repository.Setup(x => x.AddAsync(It.IsAny<Post>())).ReturnsAsync(persisted);
 
         var userRepository = new Mock<IUserRepository>();
@@ -69,12 +69,11 @@ public class PostServiceTests
     {
         var userId = Guid.NewGuid();
         var post = TestDataFactory.Post(title: "  Draft  ", userId: userId);
-        var existing = TestDataFactory.Post(title: "draft", userId: userId);
 
         var repository = new Mock<IPostRepository>();
         repository
-            .Setup(x => x.GetAllAsync(0, 0, It.IsAny<List<System.Linq.Expressions.Expression<Func<Post, object>>>>(), true))
-            .ReturnsAsync(new[] { existing });
+            .Setup(x => x.ExistsByUserAndTitleAsync(userId, "Draft", null))
+            .ReturnsAsync(true);
 
         var userRepository = new Mock<IUserRepository>();
         userRepository.Setup(x => x.GetByIdAsync(userId)).ReturnsAsync(TestDataFactory.User(id: userId));
@@ -88,14 +87,12 @@ public class PostServiceTests
     public async Task CreateAsync_SameTitleDifferentUser_IsAllowed()
     {
         var userId = Guid.NewGuid();
-        var otherUserId = Guid.NewGuid();
         var post = TestDataFactory.Post(title: "Draft", userId: userId);
-        var existing = TestDataFactory.Post(title: "draft", userId: otherUserId);
 
         var repository = new Mock<IPostRepository>();
         repository
-            .Setup(x => x.GetAllAsync(0, 0, It.IsAny<List<System.Linq.Expressions.Expression<Func<Post, object>>>>(), true))
-            .ReturnsAsync(new[] { existing });
+            .Setup(x => x.ExistsByUserAndTitleAsync(userId, "Draft", null))
+            .ReturnsAsync(false);
         repository.Setup(x => x.AddAsync(post)).ReturnsAsync(post);
 
         var userRepository = new Mock<IUserRepository>();
@@ -131,8 +128,8 @@ public class PostServiceTests
         var repository = new Mock<IPostRepository>();
         repository.Setup(x => x.GetByIdAsync(id)).ReturnsAsync(current);
         repository
-            .Setup(x => x.GetAllAsync(0, 0, It.IsAny<List<System.Linq.Expressions.Expression<Func<Post, object>>>>(), true))
-            .ReturnsAsync(Array.Empty<Post>());
+            .Setup(x => x.ExistsByUserAndTitleAsync(userId, "New", id))
+            .ReturnsAsync(false);
         repository.Setup(x => x.UpdateByIdAsync(id, current)).ReturnsAsync(current);
 
         var userRepository = new Mock<IUserRepository>();

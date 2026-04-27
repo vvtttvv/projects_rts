@@ -1,24 +1,23 @@
+using BlogApp.API.Endpoints;
+using BlogApp.API.Extensions;
 using BlogApp.Postgres;
-using BlogApp.Postgres.Seed;
 using BlogApp.Services;
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
 builder.Services.AddServicesLayer();
 builder.Services.AddDatabaseLayer(builder.Configuration);
+builder.Services.AddApiDocumentation();
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-	var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-	await dbContext.Database.MigrateAsync();
-	await DbSeeder.SeedAsync(dbContext);
-}
+await app.ApplyMigrationsAndSeedingAsync();
 
 app.UseHttpsRedirection();
-app.MapControllers();
+app.UseApiDocumentation();
+
+app.MapUsersEndpoints();
+app.MapPostsEndpoints();
+app.MapCommentsEndpoints();
 
 app.Run();

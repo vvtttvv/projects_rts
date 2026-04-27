@@ -9,7 +9,7 @@ namespace BlogApp.Services.Realizations;
 public class UserService(IUserRepository repository) : IUserService
 {
 	public Task<IReadOnlyCollection<User>> GetAllAsync() =>
-		repository.GetAllAsync(0, 0, EmptyIncludes<User>());
+		repository.GetAllAsync();
 
 	public Task<User?> GetByIdAsync(Guid id) => repository.GetByIdAsync(id);
 
@@ -64,8 +64,7 @@ public class UserService(IUserRepository repository) : IUserService
 		}
 
 		var normalizedUserName = user.UserName.Trim();
-		var users = await repository.GetAllAsync(0, 0, EmptyIncludes<User>());
-		if (users.Any(x => x.Id != updatingId && string.Equals(x.UserName, normalizedUserName, StringComparison.OrdinalIgnoreCase)))
+		if (await repository.ExistsByUserNameAsync(normalizedUserName, updatingId))
 		{
 			throw new ConflictException($"User with username '{normalizedUserName}' already exists.");
 		}

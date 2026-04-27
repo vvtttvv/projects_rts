@@ -3,6 +3,7 @@ using BlogApp.Repositories;
 using BlogApp.Services.Exceptions;
 using BlogApp.Services.Realizations;
 using Moq;
+using System.Linq.Expressions;
 
 namespace BlogApp.Tests.Services;
 
@@ -15,7 +16,7 @@ public class UserServiceTests
         var expected = new[] { TestDataFactory.User() };
         var repository = new Mock<IUserRepository>();
         repository
-            .Setup(x => x.GetAllAsync(0, 0, It.IsAny<List<System.Linq.Expressions.Expression<Func<User, object>>>>(), true))
+            .Setup(x => x.GetAllAsync(0, 0, It.IsAny<List<Expression<Func<User, object>>>>(), true))
             .ReturnsAsync(expected);
 
         var service = new UserService(repository.Object);
@@ -33,8 +34,8 @@ public class UserServiceTests
 
         var repository = new Mock<IUserRepository>();
         repository
-            .Setup(x => x.GetAllAsync(0, 0, It.IsAny<List<System.Linq.Expressions.Expression<Func<User, object>>>>(), true))
-            .ReturnsAsync(Array.Empty<User>());
+            .Setup(x => x.ExistsByUserNameAsync("Alice", null))
+            .ReturnsAsync(false);
         repository
             .Setup(x => x.AddAsync(It.IsAny<User>()))
             .ReturnsAsync(persisted);
@@ -65,13 +66,12 @@ public class UserServiceTests
     [Test]
     public void CreateAsync_DuplicateUserName_ThrowsConflictException()
     {
-        var existing = TestDataFactory.User(userName: "john");
         var user = TestDataFactory.User(userName: " JOHN ");
 
         var repository = new Mock<IUserRepository>();
         repository
-            .Setup(x => x.GetAllAsync(0, 0, It.IsAny<List<System.Linq.Expressions.Expression<Func<User, object>>>>(), true))
-            .ReturnsAsync(new[] { existing });
+            .Setup(x => x.ExistsByUserNameAsync("JOHN", null))
+            .ReturnsAsync(true);
 
         var service = new UserService(repository.Object);
 
@@ -99,8 +99,8 @@ public class UserServiceTests
         var repository = new Mock<IUserRepository>();
         repository.Setup(x => x.GetByIdAsync(id)).ReturnsAsync(current);
         repository
-            .Setup(x => x.GetAllAsync(0, 0, It.IsAny<List<System.Linq.Expressions.Expression<Func<User, object>>>>(), true))
-            .ReturnsAsync(Array.Empty<User>());
+            .Setup(x => x.ExistsByUserNameAsync("new-login", id))
+            .ReturnsAsync(false);
         repository.Setup(x => x.UpdateByIdAsync(id, current)).ReturnsAsync(current);
 
         var service = new UserService(repository.Object);

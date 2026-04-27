@@ -13,6 +13,7 @@ public class PostConfiguration : IEntityTypeConfiguration<Post>
 		builder.ToTable(TableName);
 		builder.HasKey(x => x.Id);
 		builder.Property(x => x.Title).IsRequired().HasMaxLength(150);
+		builder.HasIndex(x => new { x.UserId, x.Title }).IsUnique();
 
 		builder.HasOne(x => x.User)
 			.WithMany(x=> x.Posts)

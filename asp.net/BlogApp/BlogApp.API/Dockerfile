@@ -8,7 +8,7 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["BlogApp.API/BlogApp.API.csproj", "BlogApp.API/"]
-COPY ["BlogApp.Postgre/BlogApp.Postgre.csproj", "BlogApp.Postgre/"]
+COPY ["BlogApp.Postgres/BlogApp.Postgres.csproj", "BlogApp.Postgres/"]
 COPY ["BlogApp.Domain/BlogApp.Domain.csproj", "BlogApp.Domain/"]
 COPY ["BlogApp.Repositories/BlogApp.Repositories.csproj", "BlogApp.Repositories/"]
 COPY ["BlogApp.Services/BlogApp.Services.csproj", "BlogApp.Services/"]

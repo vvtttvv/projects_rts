@@ -12,7 +12,7 @@ public class CommentService(
 	IPostRepository postRepository) : ICommentService
 {
 	public Task<IReadOnlyCollection<Comment>> GetAllAsync() =>
-		repository.GetAllAsync(0, 0, EmptyIncludes<Comment>());
+		repository.GetAllAsync();
 
 	public Task<Comment?> GetByIdAsync(Guid id) => repository.GetByIdAsync(id);
 

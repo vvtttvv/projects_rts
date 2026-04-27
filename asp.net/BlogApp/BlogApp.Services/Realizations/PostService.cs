@@ -9,7 +9,7 @@ namespace BlogApp.Services.Realizations;
 public class PostService(IPostRepository repository, IUserRepository userRepository) : IPostService
 {
 	public Task<IReadOnlyCollection<Post>> GetAllAsync() =>
-		repository.GetAllAsync(0, 0, EmptyIncludes<Post>());
+		repository.GetAllAsync();
 
 	public Task<Post?> GetByIdAsync(Guid id) => repository.GetByIdAsync(id);
 
@@ -59,10 +59,7 @@ public class PostService(IPostRepository repository, IUserRepository userReposit
 		}
 
 		var normalizedTitle = post.Title.Trim();
-		var posts = await repository.GetAllAsync(0, 0, EmptyIncludes<Post>());
-		if (posts.Any(x => x.Id != updatingId
-				&& x.UserId == post.UserId
-				&& string.Equals(x.Title, normalizedTitle, StringComparison.OrdinalIgnoreCase)))
+		if (await repository.ExistsByUserAndTitleAsync(post.UserId, normalizedTitle, updatingId))
 		{
 			throw new ConflictException($"Post with title '{normalizedTitle}' already exists for this user.");
 		}
