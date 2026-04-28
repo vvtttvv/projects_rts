@@ -5,8 +5,6 @@ namespace BlogApp.Services.Interfaces;
 
 public interface IGuestPost
 {
-    IUserRepository User { get; }
-    IPostRepository Post { get; }
     Task<bool> CreateUserAsync(User user);
     Task<bool> AddPostAsync(Post post);
     Task SaveAsync(CancellationToken ct = default);
