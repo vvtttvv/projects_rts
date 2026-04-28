@@ -35,6 +35,10 @@ public static class UsersEndpoints
 			.Produces(StatusCodes.Status204NoContent)
 			.Produces(StatusCodes.Status404NotFound);
 
+		usersGroup.MapPost("/with-post", CreateUserWithPostAsync)
+			.Produces<UserWithPostResponse>(StatusCodes.Status201Created)
+			.ProducesValidationProblem();
+
 		return group;
 	}
 
@@ -104,5 +108,22 @@ public static class UsersEndpoints
 		{
 			return Results.NotFound();
 		}
+	}
+
+	private static async Task<IResult> CreateUserWithPostAsync(CreateUserWithPostRequest request, IGuestPost guestPost)
+	{
+		var validationErrors = request.ValidateRequest();
+
+		if (validationErrors is not null)
+		{
+			return Results.ValidationProblem(validationErrors);
+		}
+
+		var user = request.User.ToEntity();
+		var post = request.Post.ToEntity(user.Id);
+
+		await guestPost.AddUserAndPostAsync(user, post);
+		var response = new UserWithPostResponse(user.ToResponse(), post.ToResponse());
+		return Results.Created($"/api/users/{response.User.Id}", response);
 	}
 }

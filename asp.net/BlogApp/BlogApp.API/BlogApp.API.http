@@ -126,3 +126,22 @@ Accept: application/json
   "fullName": "API Tester Updated",
   "role": 2
 }
+
+### USERS: create user with post
+POST {{BlogAppApiHostAddress}}/api/users/with-post
+Content-Type: application/json
+Accept: application/json
+
+{
+  "User": {
+    "userName": "Cito_hotite",
+    "age": 25,
+    "fullName": "API Tester",
+    "role": 1
+    },
+  
+  "Post": {
+      "title": "HTTP Client Test Post",
+      "description": "Created from BlogApp.API.http"
+    }
+  }

@@ -11,6 +11,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICommentService, CommentService>();
         services.AddScoped<IPostService, PostService>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IGuestPost, GuestPost>();
         return services;
     }
 }

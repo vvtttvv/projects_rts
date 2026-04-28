@@ -19,6 +19,13 @@ public static class PostMapper
 		UserId = request.UserId
 	};
 
+	public static Post ToEntity(this CreatePostForUserRequest request, Guid userId) => new()
+	{
+		Title = request.Title,
+		Description = request.Description ?? string.Empty,
+		UserId = userId
+	};
+
 	public static PostResponse ToResponse(this Post post) => new(
 		post.Id,
 		post.Title,
