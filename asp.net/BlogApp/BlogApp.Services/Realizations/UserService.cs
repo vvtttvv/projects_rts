@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using BlogApp.Domain.Entities;
 using BlogApp.Repositories;
 using BlogApp.Services.Exceptions;
@@ -8,8 +7,8 @@ namespace BlogApp.Services.Realizations;
 
 public class UserService(IUserRepository repository) : IUserService
 {
-	public Task<IReadOnlyCollection<User>> GetAllAsync() =>
-		repository.GetAllAsync();
+	public Task<PagedResult<User>> GetAllAsync(int page = 1, int pageSize = 10) =>
+		repository.GetAllAsync(page, pageSize);
 
 	public Task<User?> GetByIdAsync(Guid id) => repository.GetByIdAsync(id);
 
@@ -18,7 +17,9 @@ public class UserService(IUserRepository repository) : IUserService
 		await ValidateAsync(user);
 		user.UserName = user.UserName.Trim();
 		user.FullName = user.FullName.Trim();
-		return await repository.AddAsync(user);
+		var created = await repository.AddAsync(user);
+		await repository.SaveChangesAsync();
+		return created;
 	}
 
 	public async Task<User> UpdateAsync(Guid id, User user)
@@ -33,17 +34,25 @@ public class UserService(IUserRepository repository) : IUserService
 		current.Age = user.Age;
 		current.Role = user.Role;
 
-		return await repository.UpdateByIdAsync(id, current)
+		var updated = await repository.UpdateByIdAsync(id, current)
 			?? throw new EntityNotFoundException($"User with id {id} was not found.");
+
+		await repository.SaveChangesAsync();
+		return updated;
 	}
 
 	public async Task DeleteAsync(Guid id)
 	{
-		var deleted = await repository.DeleteAsync(id);
+		var current = await repository.GetByIdAsync(id)
+			?? throw new EntityNotFoundException($"User with id {id} was not found.");
+
+		var deleted = await repository.DeleteAsync(current.Id);
 		if (!deleted)
 		{
 			throw new EntityNotFoundException($"User with id {id} was not found.");
 		}
+
+		await repository.SaveChangesAsync();
 	}
 
 	private async Task ValidateAsync(User user, Guid? updatingId = null)
@@ -70,5 +79,4 @@ public class UserService(IUserRepository repository) : IUserService
 		}
 	}
 
-	private static List<Expression<Func<T, object>>> EmptyIncludes<T>() where T : BaseEntity => [];
 }

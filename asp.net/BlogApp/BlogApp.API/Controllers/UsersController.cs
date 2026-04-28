@@ -1,5 +1,6 @@
 using BlogApp.API.DTO.Mappers;
 using BlogApp.API.DTO.Models.Users;
+using BlogApp.Repositories;
 using BlogApp.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,11 +11,15 @@ namespace BlogApp.API.Controllers;
 public class UsersController(IUserService service) : ControllerBase
 {
 	[HttpGet]
-	[ProducesResponseType(typeof(IReadOnlyCollection<UserResponse>), StatusCodes.Status200OK)]
-	public async Task<ActionResult<IReadOnlyCollection<UserResponse>>> GetAll()
+	[ProducesResponseType(typeof(PagedResult<UserResponse>), StatusCodes.Status200OK)]
+	public async Task<ActionResult<PagedResult<UserResponse>>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
 	{
-		var users = await service.GetAllAsync();
-		return Ok(users.Select(x => x.ToResponse()).ToArray());
+		var users = await service.GetAllAsync(page, pageSize);
+		return Ok(new PagedResult<UserResponse>(
+			users.Items.Select(x => x.ToResponse()).ToArray(),
+			users.Page,
+			users.PageSize,
+			users.TotalCount));
 	}
 
 	[HttpGet("{id:guid}")]

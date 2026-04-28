@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using BlogApp.Domain.Entities;
 using BlogApp.Repositories;
 using BlogApp.Services.Exceptions;
@@ -11,8 +10,8 @@ public class CommentService(
 	IUserRepository userRepository,
 	IPostRepository postRepository) : ICommentService
 {
-	public Task<IReadOnlyCollection<Comment>> GetAllAsync() =>
-		repository.GetAllAsync();
+	public Task<PagedResult<Comment>> GetAllAsync(int page = 1, int pageSize = 10) =>
+		repository.GetAllAsync(page, pageSize);
 
 	public Task<Comment?> GetByIdAsync(Guid id) => repository.GetByIdAsync(id);
 
@@ -20,7 +19,9 @@ public class CommentService(
 	{
 		await ValidateAsync(comment);
 		comment.Description = comment.Description.Trim();
-		return await repository.AddAsync(comment);
+		var created = await repository.AddAsync(comment);
+		await repository.SaveChangesAsync();
+		return created;
 	}
 
 	public async Task<Comment> UpdateAsync(Guid id, Comment comment)
@@ -35,17 +36,25 @@ public class CommentService(
 		current.PostId = comment.PostId;
 		current.ParentId = comment.ParentId;
 
-		return await repository.UpdateByIdAsync(id, current)
+		var updated = await repository.UpdateByIdAsync(id, current)
 			?? throw new EntityNotFoundException($"Comment with id {id} was not found.");
+
+		await repository.SaveChangesAsync();
+		return updated;
 	}
 
 	public async Task DeleteAsync(Guid id)
 	{
-		var deleted = await repository.DeleteAsync(id);
+		var current = await repository.GetByIdAsync(id)
+			?? throw new EntityNotFoundException($"Comment with id {id} was not found.");
+
+		var deleted = await repository.DeleteAsync(current.Id);
 		if (!deleted)
 		{
 			throw new EntityNotFoundException($"Comment with id {id} was not found.");
 		}
+
+		await repository.SaveChangesAsync();
 	}
 
 	private async Task ValidateAsync(Comment comment, Guid? updatingId = null)
@@ -84,5 +93,4 @@ public class CommentService(
 		}
 	}
 
-	private static List<Expression<Func<T, object>>> EmptyIncludes<T>() where T : BaseEntity => [];
 }

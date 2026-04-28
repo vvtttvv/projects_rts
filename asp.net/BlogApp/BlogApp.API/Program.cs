@@ -16,8 +16,10 @@ await app.ApplyMigrationsAndSeedingAsync();
 app.UseHttpsRedirection();
 app.UseApiDocumentation();
 
-app.MapUsersEndpoints();
-app.MapPostsEndpoints();
-app.MapCommentsEndpoints();
+var group = app.MapGroup("/api");
+
+group.MapCommentsEndpoints();
+group.MapPostsEndpoints();
+group.MapUsersEndpoints();
 
 app.Run();

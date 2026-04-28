@@ -16,14 +16,20 @@ public class UserServiceTests
         var expected = new[] { TestDataFactory.User() };
         var repository = new Mock<IUserRepository>();
         repository
-            .Setup(x => x.GetAllAsync(0, 0, It.IsAny<List<Expression<Func<User, object>>>>(), true))
-            .ReturnsAsync(expected);
+          .Setup(x => x.GetAllAsync(1, 10, It.IsAny<List<Expression<Func<User, object>>>>(), true))
+          .ReturnsAsync(new PagedResult<User>(expected, 1, 10, 1));
 
         var service = new UserService(repository.Object);
 
         var result = await service.GetAllAsync();
 
-        Assert.That(result, Is.EqualTo(expected));
+            Assert.Multiple(() =>
+            {
+              Assert.That(result.Items, Is.EqualTo(expected));
+              Assert.That(result.Page, Is.EqualTo(1));
+              Assert.That(result.PageSize, Is.EqualTo(10));
+              Assert.That(result.TotalCount, Is.EqualTo(1));
+            });
     }
 
     [Test]
@@ -120,7 +126,7 @@ public class UserServiceTests
     public void DeleteAsync_MissingEntity_ThrowsEntityNotFoundException()
     {
         var repository = new Mock<IUserRepository>();
-        repository.Setup(x => x.DeleteAsync(It.IsAny<Guid>())).ReturnsAsync(false);
+        repository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((User?)null);
 
         var service = new UserService(repository.Object);
 
@@ -131,6 +137,7 @@ public class UserServiceTests
     public async Task DeleteAsync_ExistingEntity_Completes()
     {
         var repository = new Mock<IUserRepository>();
+        repository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(TestDataFactory.User());
         repository.Setup(x => x.DeleteAsync(It.IsAny<Guid>())).ReturnsAsync(true);
 
         var service = new UserService(repository.Object);

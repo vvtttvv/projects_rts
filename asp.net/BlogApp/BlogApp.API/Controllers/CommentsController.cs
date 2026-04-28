@@ -1,5 +1,6 @@
 using BlogApp.API.DTO.Mappers;
 using BlogApp.API.DTO.Models.Comments;
+using BlogApp.Repositories;
 using BlogApp.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,11 +11,15 @@ namespace BlogApp.API.Controllers;
 public class CommentsController(ICommentService service) : ControllerBase
 {
 	[HttpGet]
-	[ProducesResponseType(typeof(IReadOnlyCollection<CommentResponse>), StatusCodes.Status200OK)]
-	public async Task<ActionResult<IReadOnlyCollection<CommentResponse>>> GetAll()
+	[ProducesResponseType(typeof(PagedResult<CommentResponse>), StatusCodes.Status200OK)]
+	public async Task<ActionResult<PagedResult<CommentResponse>>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
 	{
-		var comments = await service.GetAllAsync();
-		return Ok(comments.Select(x => x.ToResponse()).ToArray());
+		var comments = await service.GetAllAsync(page, pageSize);
+		return Ok(new PagedResult<CommentResponse>(
+			comments.Items.Select(x => x.ToResponse()).ToArray(),
+			comments.Page,
+			comments.PageSize,
+			comments.TotalCount));
 	}
 
 	[HttpGet("{id:guid}")]

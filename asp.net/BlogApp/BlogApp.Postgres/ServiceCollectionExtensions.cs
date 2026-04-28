@@ -23,6 +23,7 @@ public static class ServiceCollectionExtensions
 		services.AddScoped<ICommentRepository, CommentRepository>();
 		services.AddScoped<IUserRepository, UserRepository>();
 		services.AddScoped<IPostRepository, PostRepository>();
+		services.AddScoped<IUnitOfWork, UnitOfWork>();
 		return services;
 	}
 }

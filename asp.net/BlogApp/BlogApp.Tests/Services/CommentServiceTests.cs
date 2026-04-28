@@ -193,7 +193,7 @@ public class CommentServiceTests
     public void DeleteAsync_MissingEntity_ThrowsEntityNotFoundException()
     {
         var repository = new Mock<ICommentRepository>();
-        repository.Setup(x => x.DeleteAsync(It.IsAny<Guid>())).ReturnsAsync(false);
+        repository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Comment?)null);
 
         var service = new CommentService(
             repository.Object,

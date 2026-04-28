@@ -151,7 +151,7 @@ public class PostServiceTests
     public void DeleteAsync_MissingEntity_ThrowsEntityNotFoundException()
     {
         var repository = new Mock<IPostRepository>();
-        repository.Setup(x => x.DeleteAsync(It.IsAny<Guid>())).ReturnsAsync(false);
+        repository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Post?)null);
 
         var userRepository = new Mock<IUserRepository>();
         var service = new PostService(repository.Object, userRepository.Object);

@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using BlogApp.Domain.Entities;
 using BlogApp.Repositories;
 using BlogApp.Services.Exceptions;
@@ -8,8 +7,8 @@ namespace BlogApp.Services.Realizations;
 
 public class PostService(IPostRepository repository, IUserRepository userRepository) : IPostService
 {
-	public Task<IReadOnlyCollection<Post>> GetAllAsync() =>
-		repository.GetAllAsync();
+	public Task<PagedResult<Post>> GetAllAsync(int page = 1, int pageSize = 10) =>
+		repository.GetAllAsync(page, pageSize);
 
 	public Task<Post?> GetByIdAsync(Guid id) => repository.GetByIdAsync(id);
 
@@ -17,8 +16,10 @@ public class PostService(IPostRepository repository, IUserRepository userReposit
 	{
 		await ValidateAsync(post);
 		post.Title = post.Title.Trim();
-		post.Description = post.Description?.Trim() ?? string.Empty;
-		return await repository.AddAsync(post);
+		post.Description = post.Description.Trim();
+		var created = await repository.AddAsync(post);
+		await repository.SaveChangesAsync();
+		return created;
 	}
 
 	public async Task<Post> UpdateAsync(Guid id, Post post)
@@ -29,20 +30,28 @@ public class PostService(IPostRepository repository, IUserRepository userReposit
 		await ValidateAsync(post, id);
 
 		current.Title = post.Title.Trim();
-		current.Description = post.Description?.Trim() ?? string.Empty;
+		current.Description = post.Description.Trim();
 		current.UserId = post.UserId;
 
-		return await repository.UpdateByIdAsync(id, current)
+		var updated = await repository.UpdateByIdAsync(id, current)
 			?? throw new EntityNotFoundException($"Post with id {id} was not found.");
+
+		await repository.SaveChangesAsync();
+		return updated;
 	}
 
 	public async Task DeleteAsync(Guid id)
 	{
-		var deleted = await repository.DeleteAsync(id);
+		var current = await repository.GetByIdAsync(id)
+			?? throw new EntityNotFoundException($"Post with id {id} was not found.");
+
+		var deleted = await repository.DeleteAsync(current.Id);
 		if (!deleted)
 		{
 			throw new EntityNotFoundException($"Post with id {id} was not found.");
 		}
+
+		await repository.SaveChangesAsync();
 	}
 
 	private async Task ValidateAsync(Post post, Guid? updatingId = null)
@@ -65,5 +74,4 @@ public class PostService(IPostRepository repository, IUserRepository userReposit
 		}
 	}
 
-	private static List<Expression<Func<T, object>>> EmptyIncludes<T>() where T : BaseEntity => [];
 }

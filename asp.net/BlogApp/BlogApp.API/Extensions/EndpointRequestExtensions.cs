@@ -7,8 +7,8 @@ public static class EndpointRequestExtensions
 {
 	public static Dictionary<string, string[]>? ValidateRequest<TRequest>(this TRequest request)
 	{
-		var validationResults = new List<ValidationResult>();
 		var validationContext = new ValidationContext(request!);
+		var validationResults = new List<ValidationResult>();
 
 		if (Validator.TryValidateObject(request!, validationContext, validationResults, true))
 		{
@@ -33,4 +33,3 @@ public static class EndpointRequestExtensions
 		};
 	}
 }
-
